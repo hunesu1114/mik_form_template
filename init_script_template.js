@@ -150,3 +150,65 @@ mikApvPublic.getEltByAlias('area_size').keyup(function (e) {
  * ==========================================↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 툴팁 관련 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑==========================================
  * ==========================================↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 툴팁 관련 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑==========================================
  */
+
+// [선택]에서 display 라벨에 &nbsp;가 포함되어 isView에 그대로 표시 되는 경우 없애는 메서드
+let selectedLabelCnt = $('.choicefield-viewmode-label').length
+for (let i = 0; i < selectedLabelCnt; i++) {
+    $('.choicefield-viewmode-label').eq(i).text($('.choicefield-viewmode-label').eq(i).text().replace(/&nbsp;/g, ''))
+}
+
+// 필드편집 -> 부서 에서 width설정시 input과 button 모두 입력해주어야 함 (ex:200;50)
+// ContentsRenderHelper.cs -> 2655 Line확인
+
+// 동적테이블 literal + datepicker처리
+function addBtnClick(){
+    let unique=(new Date()).getTime()
+    let html=`<div class="tbl_horiz"><table class="field-table none-editor-table " id="table-el-${unique}"><colgroup><col style="width:5%"><col style="width:10%"><col style="width:8%"><col style="width:6%"><col style="width:22%"><col style="width:9%"><col style="width:10%"><col style="width:15%"><col style="width:5%"></colgroup><tbody><tr class="tbl_row"><th class="tbl_head td-header td-header-first el-714-display-group">번호</th>
+<th class="tbl_head td-header el-71-display-group field-align-center ">근무자</th>
+<th class="tbl_head td-header el-72-display-group field-align-center ">타입</th>
+<th class="tbl_head td-header el-73-display-group field-align-center " colspan="2">근무 시작/종료</th>
+<th class="tbl_head td-header el-74-display-group field-align-center " colspan="2">근무 시간</th>
+<th class="tbl_head td-header el-75-display-group field-align-center ">사유</th>
+<th class="tbl_head td-header el-717-display-group">check</th>
+
+
+</tr><tr class="tbl_row  "><td class="tbl_data contents-field-td el-718-display-group" rowspan="2"><input type="hidden" id="" value="" data-alias="idx"><div><span class="added-idx" id="idx-${unique}">${++rowCnt}</span></div></td>
+
+<td class="tbl_data contents-field-td el-76-display-group " rowspan="2" id="person-${unique}"></td>
+
+<td class="tbl_data contents-field-td el-77-display-group field-align-center  " rowspan="2"><select id="type_select-${unique}">
+      <option value="평일">평일</option>
+      <option value="주말">주말</option>
+    </select></td>
+
+<th class="tbl_head td-header el-${unique}-display-group has-datepicker-group-td">시작일</th>
+    <td class="tbl_data contents-field-td el-${unique}-display-group has-datepicker-group-td ">
+    <input type="text" id="start_date-${unique}" value="" class="datetime-date fieldEmptyWidthStyle" data-alias=""><button onclick="$('#start_date-${unique}').datepicker('show'); return false;" class="btn_date"><span class="ico_btn ico_btn_date"></span></button>
+    <input type="text" id="start_time-${unique}" value="" class="datetime-time fieldEmptyWidthStyle" data-alias="" autocomplete="OFF"></td>
+    
+<th class="tbl_head td-header el-79-display-group">총 근무시간</th><td class="tbl_data contents-field-td el-79-display-group "><input type="text" id="total_duration-${unique}" value="" class="text " style="width:80px" data-alias=""></td>
+    
+<td class="tbl_data contents-field-td el-710-display-group " rowspan="2"><textarea id="reason-${unique}" rows="4" class="" data-alias=""></textarea></td>
+
+<td class="tbl_data contents-field-td el-719-display-group field-align-center  " rowspan="2"><input type="checkbox" id="check-${unique}" class="bor0 delete_check"><label for="check-${unique}"></td>
+
+<tr class="tbl_row  "><th class="tbl_head td-header el-711-display-group has-datepicker-group-td">종료일</th>
+    <td class="tbl_data contents-field-td el-711-display-group has-datepicker-group-td" colspan="1">
+    <input type="text" id="end_date-${unique}" value="" class="datetime-date fieldEmptyWidthStyle" data-alias=""><button onclick="$('#end_date-${unique}').datepicker('show'); return false;" class="btn_date"><span class="ico_btn ico_btn_date"></span></button>
+    <input type="text" id="end_time-${unique}" value="" class="datetime-time fieldEmptyWidthStyle" data-alias="" autocomplete="OFF"></td>
+
+<th class="tbl_head td-header el-712-display-group">야간근무시간</th><td class="tbl_data contents-field-td el-712-display-group " colspan="1">
+    <input type="text" id="night_duration-${unique}" value="" class="text " style="width:80px" data-alias=""></td></tr></tbody></table></div>`
+
+    $('#write-container').append(html)
+
+    $('#start_date-'+unique).datepicker({});
+    $('#end_date-'+unique).datepicker({});
+
+    $('#start_date-'+unique).change(function(){calculateTime('start_date-'+unique,'start_time-'+unique,'end_date-'+unique,'end_time-'+unique,'total_duration-'+unique,'night_duration-'+unique)})
+    $('#start_time-'+unique).change(function(){calculateTime('start_date-'+unique,'start_time-'+unique,'end_date-'+unique,'end_time-'+unique,'total_duration-'+unique,'night_duration-'+unique)})
+    $('#end_date-'+unique).change(function(){calculateTime('start_date-'+unique,'start_time-'+unique,'end_date-'+unique,'end_time-'+unique,'total_duration-'+unique,'night_duration-'+unique)})
+    $('#end_time-'+unique).change(function(){calculateTime('start_date-'+unique,'start_time-'+unique,'end_date-'+unique,'end_time-'+unique,'total_duration-'+unique,'night_duration-'+unique)})
+
+    $('#person-'+unique).append(`<span>${g_approvalLineInfo.apvLineUserContainerList[0].drafter.lineUserName}</span>`)
+}
