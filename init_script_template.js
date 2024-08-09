@@ -212,3 +212,56 @@ function addBtnClick(){
 
     $('#person-'+unique).append(`<span>${g_approvalLineInfo.apvLineUserContainerList[0].drafter.lineUserName}</span>`)
 }
+
+// 정적화면 스크립트 쿼리파라미터 이용
+$('head').append(`
+  <style>
+    .hover:hover {
+      cursor:pointer;
+      background-color:#E8E8E8
+    }
+  </style>
+`)
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+console.log(urlParams.get('idx'))
+let center_list = [
+    ['BG99999', '브랜드그룹FC'],
+    ['F10002', '프리미엄브랜드 Unit_폐쇄'],
+    ['F10003', '데일리뷰티'],
+    ['F10012', 'SCM unit'],
+    ['F10014', '럭셔리브랜드 Unit_폐쇄'],
+    ['F10015', '디지털전략Unit'],
+    ['F10016', 'SCM 대표이사실'],
+    ['F10090', '넥스트 뷰티 Div'],
+    ['F10101', '전략예산 펀드센터'],
+    ['F12000', '사장실'],
+]
+
+for (let i = 0; i < center_list.length; i++) {
+    let html = `
+  <tr id="fund_center_elt_${i}" class="hover" style="border-top:1px solid #E8E8E8;border-bottom:1px solid #E8E8E8;line-height: 2rem;">
+          <td>${center_list[i][0]}</td>
+          <td>${center_list[i][1]}</td>
+        </tr>
+  `
+    $('#fund_center_list_tbody').append(html)
+    $('#fund_center_elt_' + i).click(function () {
+        window.parent.selectFund(urlParams.get('idx'), center_list[i][0], center_list[i][1])
+        MikPopupCommon.closeSelfPopup()
+    })
+}
+
+
+$('#search_input').keyup(function () {
+    for (let i = 0; i < center_list.length; i++) {
+        if (center_list[i][0].includes($(this).val()) || center_list[i][1].includes($(this).val())) {
+            $('#fund_center_elt_' + i).show()
+        } else {
+            $('#fund_center_elt_' + i).hide()
+        }
+    }
+})
+
+
