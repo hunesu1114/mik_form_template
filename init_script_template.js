@@ -161,9 +161,9 @@ for (let i = 0; i < selectedLabelCnt; i++) {
 // ContentsRenderHelper.cs -> 2655 Line확인
 
 // 동적테이블 literal + datepicker처리
-function addBtnClick(){
-    let unique=(new Date()).getTime()
-    let html=`<div class="tbl_horiz"><table class="field-table none-editor-table " id="table-el-${unique}"><colgroup><col style="width:5%"><col style="width:10%"><col style="width:8%"><col style="width:6%"><col style="width:22%"><col style="width:9%"><col style="width:10%"><col style="width:15%"><col style="width:5%"></colgroup><tbody><tr class="tbl_row"><th class="tbl_head td-header td-header-first el-714-display-group">번호</th>
+function addBtnClick() {
+    let unique = (new Date()).getTime()
+    let html = `<div class="tbl_horiz"><table class="field-table none-editor-table " id="table-el-${unique}"><colgroup><col style="width:5%"><col style="width:10%"><col style="width:8%"><col style="width:6%"><col style="width:22%"><col style="width:9%"><col style="width:10%"><col style="width:15%"><col style="width:5%"></colgroup><tbody><tr class="tbl_row"><th class="tbl_head td-header td-header-first el-714-display-group">번호</th>
 <th class="tbl_head td-header el-71-display-group field-align-center ">근무자</th>
 <th class="tbl_head td-header el-72-display-group field-align-center ">타입</th>
 <th class="tbl_head td-header el-73-display-group field-align-center " colspan="2">근무 시작/종료</th>
@@ -202,15 +202,15 @@ function addBtnClick(){
 
     $('#write-container').append(html)
 
-    $('#start_date-'+unique).datepicker({});
-    $('#end_date-'+unique).datepicker({});
+    $('#start_date-' + unique).datepicker({});
+    $('#end_date-' + unique).datepicker({});
 
-    $('#start_date-'+unique).change(function(){calculateTime('start_date-'+unique,'start_time-'+unique,'end_date-'+unique,'end_time-'+unique,'total_duration-'+unique,'night_duration-'+unique)})
-    $('#start_time-'+unique).change(function(){calculateTime('start_date-'+unique,'start_time-'+unique,'end_date-'+unique,'end_time-'+unique,'total_duration-'+unique,'night_duration-'+unique)})
-    $('#end_date-'+unique).change(function(){calculateTime('start_date-'+unique,'start_time-'+unique,'end_date-'+unique,'end_time-'+unique,'total_duration-'+unique,'night_duration-'+unique)})
-    $('#end_time-'+unique).change(function(){calculateTime('start_date-'+unique,'start_time-'+unique,'end_date-'+unique,'end_time-'+unique,'total_duration-'+unique,'night_duration-'+unique)})
+    $('#start_date-' + unique).change(function () { calculateTime('start_date-' + unique, 'start_time-' + unique, 'end_date-' + unique, 'end_time-' + unique, 'total_duration-' + unique, 'night_duration-' + unique) })
+    $('#start_time-' + unique).change(function () { calculateTime('start_date-' + unique, 'start_time-' + unique, 'end_date-' + unique, 'end_time-' + unique, 'total_duration-' + unique, 'night_duration-' + unique) })
+    $('#end_date-' + unique).change(function () { calculateTime('start_date-' + unique, 'start_time-' + unique, 'end_date-' + unique, 'end_time-' + unique, 'total_duration-' + unique, 'night_duration-' + unique) })
+    $('#end_time-' + unique).change(function () { calculateTime('start_date-' + unique, 'start_time-' + unique, 'end_date-' + unique, 'end_time-' + unique, 'total_duration-' + unique, 'night_duration-' + unique) })
 
-    $('#person-'+unique).append(`<span>${g_approvalLineInfo.apvLineUserContainerList[0].drafter.lineUserName}</span>`)
+    $('#person-' + unique).append(`<span>${g_approvalLineInfo.apvLineUserContainerList[0].drafter.lineUserName}</span>`)
 }
 
 // 정적화면 스크립트 쿼리파라미터 이용
@@ -264,4 +264,42 @@ $('#search_input').keyup(function () {
     }
 })
 
+// 첨부파일 validation (서버스크립트)
+if (!isTempSave) {
+    let isReport = $('input:radio[name="' + mikApvPublic.getEltIdByAlias('execution_report') + '"]').val() === 'Y' ? true : false
+    if (isReport) {
+        if ($('#attachList').children('dt').length === 0) {
+            fn_Cmn_Alert('첨부파일은 필수 입니다.')
+            return 0
+        }
+    }
+}
 
+/**
+ * 첨부파일 2개 첨부 되어있는 상황에서 삭제하는 이벤트를 잡아 체크박스를 해제할때 쓴 로직
+ */
+
+// MutationObserver 콜백 함수 정의
+function observerCallback(mutationsList) {
+  for (let mutation of mutationsList) {
+    if (mutation.type === 'childList') {
+      mutation.removedNodes.forEach(function (node) {
+        if (node.tagName === 'DT') {
+          if ($('#attachList').children('dt').length < 2) {
+            $('#attach_check').prop("checked", false);
+          }
+        }
+      });
+    }
+  }
+};
+
+// MutationObserver 인스턴스 생성
+let observer = new MutationObserver(observerCallback);
+
+// 관찰할 대상 및 옵션 설정
+// jQuery 객체는 표준 DOM 요소와는 다릅니다. MutationObserver는 표준 DOM 요소를 요구하기 때문에 jQuery 객체를 직접 사용할 수 없습니다. MutationObserver는 jQuery 메서드가 아니라 표준 DOM API를 통해 동작하기 때문입니다.
+observer.observe(document.getElementById('attachList'), { childList: true });
+/**
+ * ==============================================================================================================================================
+ */
